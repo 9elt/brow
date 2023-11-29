@@ -21,20 +21,18 @@ for (const arg of Bun.argv.slice(2))
 process.exit(0);
 
 async function main(path) {
-    let X;
+    let lines;
     try {
-        X = parse(await Bun.file(path).text());
+        lines = parse(await Bun.file(path).text());
     }
     catch {
         console.log('provide a valid script');
         return 1;
     }
 
-    const pages = await browser.pages();
-
     /** @type {Page} */
     let page = 0;
-    for (const p of pages)
+    for (const p of await browser.pages())
         if (await p.evaluate(() => document.visibilityState == 'visible')) {
             page = p;
             break;
@@ -42,7 +40,7 @@ async function main(path) {
     if (!page)
         page = await browser.newPage();
 
-    const CMD = {
+    const COMMANDS = {
         async goto(url) {
             await page.goto(url);
         },
@@ -122,11 +120,11 @@ async function main(path) {
     const VAR = {};
 
     function is_cmd(command) {
-        return command in CMD;
+        return command in COMMANDS;
     }
 
     async function cmd(command, args) {
-        return await CMD[command](args)
+        return await COMMANDS[command](args);
     }
 
     function parse_cmd(line) {
@@ -137,12 +135,11 @@ async function main(path) {
         return [cmd, args];
     }
 
-    for (let i = 0; i < X.length; i++) {
-        const line = X[i].trim();
+    for (const line of lines) {
         if (!line || line.startsWith('#'))
             continue;
 
-        await CMD.sleep(150);
+        await COMMANDS.sleep(150);
 
         if (line.startsWith('$')) {
             const [name, _] = parse_cmd(line);
