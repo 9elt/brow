@@ -100,10 +100,6 @@ async function main(path) {
             await Bun.write(filename, data.join(' '));
             return true;
         },
-        async exit(status) {
-            console.log();
-            process.exit(parseInt(status) || 1);
-        },
         async yesNO() {
             console.write('[y/N] ');
             for await (const _ of console)
