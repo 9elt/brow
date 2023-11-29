@@ -8,13 +8,9 @@ press Enter
 
 wait .ytd-item-section-renderer a
 
-$results browser (() => {
-    const elems = document.querySelectorAll('.ytd-item-section-renderer a');
-    let legit = elems.length;
-    elems.forEach(el => /(sponsor|pubblic|advert)/i.test(el.innerHTML) && legit--);
-    return `total ${elems.length}, legit ${legit}`;
-})();
+$RESULTS browser
+    document.querySelectorAll('.ytd-item-section-renderer a').length
 
-log $results
+log found $RESULTS search results
 
 click .ytd-item-section-renderer a
