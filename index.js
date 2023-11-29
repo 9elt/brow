@@ -116,7 +116,7 @@ async function main(path) {
             for await (const _ of console)
                 return /n(o)?/.test(_.trim().toLowerCase()) ? this.exit(1) : 1;
         },
-        async log() {}
+        async log() { }
     };
 
     const VAR = {};
@@ -139,7 +139,6 @@ async function main(path) {
 
     for (let i = 0; i < X.length; i++) {
         const line = X[i].trim();
-
         if (!line || line.startsWith('#'))
             continue;
 
@@ -157,17 +156,15 @@ async function main(path) {
         }
 
         const [command, args] = parse_cmd(line);
-
         console.write(esc(command, 38, 5, 244, 1), ' ', args, ' ');
 
         try {
-            await CMD[command](args);
+            await cmd(command, args);
             console.write(esc('OK', 38, 5, 155, 1), '\n');
         }
         catch (err) {
             console.write(esc('ERR', 38, 5, 203, 1), '\n');
-            if (DEBUG)
-                console.log(err);
+            DEBUG && console.log(err);
         }
     }
 }
