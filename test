@@ -1,0 +1,20 @@
+goto https://youtube.com
+
+click input
+
+type Elder Scrolls - Sigma Knight Meme | 4K
+
+press Enter
+
+wait .ytd-item-section-renderer a
+
+$results browser (() => {
+    const elems = document.querySelectorAll('.ytd-item-section-renderer a');
+    let legit = elems.length;
+    elems.forEach(el => /(sponsor|pubblic|advert)/i.test(el.innerHTML) && legit--);
+    return `total ${elems.length}, legit ${legit}`;
+})();
+
+log $results
+
+click .ytd-item-section-renderer a
