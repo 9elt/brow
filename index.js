@@ -116,14 +116,14 @@ async function main(path) {
     const VAR = {};
 
     function parse_cmd(line) {
-        let c = '';
+        let char = '';
         let i = 0;
         let cmd = '';
         let args = '';
-        while ((c = line.charAt(i++)) !== ' ')
-            cmd += c;
-        while ((c = line.charAt(i++)))
-            args += c;
+        while ((char = line.charAt(i++)) && char !== ' ')
+            cmd += char;
+        while ((char = line.charAt(i++)))
+            args += char;
         for (const key in VAR)
             args = args.replace(key, VAR[key]);
         return [cmd, args];
@@ -163,8 +163,8 @@ async function main(path) {
 async function parse(str, f) {
     let LF = true;
     let curr = '';
-    for (const c of str) {
-        if (c === '\n') {
+    for (const char of str) {
+        if (char === '\n') {
             if (LF) {
                 await f(curr.trim());
                 curr = '';
@@ -176,9 +176,8 @@ async function parse(str, f) {
             }
             continue;
         }
-        curr += c;
-        if (LF)
-            LF = false;
+        curr += char;
+        LF &&= false;
     }
     await f(curr.trim());
 }
