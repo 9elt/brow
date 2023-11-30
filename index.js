@@ -21,9 +21,9 @@ for (const arg of Bun.argv.slice(2))
 process.exit(0);
 
 async function main(path) {
-    let lines;
+    let file;
     try {
-        lines = parse(await Bun.file(path).text());
+        file = await Bun.file(path).text();
     }
     catch {
         console.log('provide a valid script');
@@ -115,25 +115,23 @@ async function main(path) {
 
     const VAR = {};
 
-    function is_cmd(command) {
-        return command in COMMANDS;
-    }
-
-    async function cmd(command, args) {
-        return await COMMANDS[command](args);
-    }
-
     function parse_cmd(line) {
-        const [cmd, ..._] = line.trim().split(' ');
-        let args = _.join(' ');
-        for (const V in VAR)
-            args = args.replace(V, VAR[V]);
+        let c = '';
+        let i = 0;
+        let cmd = '';
+        let args = '';
+        while ((c = line.charAt(i++)) !== ' ')
+            cmd += c;
+        while ((c = line.charAt(i++)))
+            args += c;
+        for (const key in VAR)
+            args = args.replace(key, VAR[key]);
         return [cmd, args];
     }
 
-    for (const line of lines) {
+    await parse(file, async (line) => {
         if (!line || line.startsWith('#'))
-            continue;
+            return;
 
         await COMMANDS.sleep(150);
 
@@ -141,35 +139,34 @@ async function main(path) {
             const [name, _] = parse_cmd(line);
             const [command, args] = parse_cmd(_);
             try {
-                VAR[name] = is_cmd(command)
-                    ? await cmd(command, args) : _;
+                VAR[name] = command in COMMANDS
+                    ? await COMMANDS[command](args) : _;
             }
             catch { }
-            continue;
+            return;
         }
 
         const [command, args] = parse_cmd(line);
         console.write(esc(command, 38, 5, 244, 1), ' ', args, ' ');
 
         try {
-            await cmd(command, args);
+            await COMMANDS[command](args);
             console.write(esc('OK', 38, 5, 155, 1), '\n');
         }
         catch (err) {
             console.write(esc('ERR', 38, 5, 203, 1), '\n');
             DEBUG && console.log(err);
         }
-    }
+    });
 }
 
-function parse(str) {
-    const result = [];
+async function parse(str, f) {
     let LF = true;
     let curr = '';
     for (const c of str) {
         if (c === '\n') {
             if (LF) {
-                result.push(curr.trim());
+                await f(curr.trim());
                 curr = '';
                 LF = false;
             }
@@ -183,8 +180,7 @@ function parse(str) {
         if (LF)
             LF = false;
     }
-    result.push(curr.trim());
-    return result;
+    await f(curr.trim());
 }
 
 function esc(text, ...codes) {
