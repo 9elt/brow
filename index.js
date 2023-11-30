@@ -169,6 +169,8 @@ async function parse(str, f) {
     let LF = true;
     let curr = '';
     for (const char of str) {
+        if (char === '\r')
+            continue;
         if (char === '\n') {
             if (LF) {
                 await f(curr.trim());

@@ -1,3 +1,19 @@
+# syntax
+
+# \n\n separates expressions
+(even comments)
+
+# execute a command
+<command> <args>
+
+# assign a varaible
+<$variable_name> <args>
+
+# assign the result of a command to a varaible
+<$variable_name> <command> <args>
+
+
+
 goto https://youtube.com
 
 click input
