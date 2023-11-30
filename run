@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ ! "$(ss -tuna | grep 21222)" ]; then
+  read -rp "close chromium? [y/N] " R && [[ $R == [yY] || $R == [yY][eE][sS] ]] || exit 1
+  pkill chromium
+  chromium --remote-debugging-port=21222 &>/dev/null &
+  sleep 2
+fi
+
+bun ~/brow/index.js "$@"
