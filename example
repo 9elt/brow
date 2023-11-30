@@ -6,11 +6,13 @@ type $1
 
 press Enter
 
-wait .ytd-item-section-renderer a
+$video_selector .ytd-item-section-renderer a#video-title
 
-$RESULTS browser
-    document.querySelectorAll('.ytd-item-section-renderer a').length
+wait $video_selector
 
-log found $RESULTS search results
+$search_results browser
+    document.querySelectorAll('$video_selector').length
 
-click .ytd-item-section-renderer a
+log found $search_results search results
+
+click $video_selector
