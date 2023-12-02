@@ -116,6 +116,10 @@ const COMMANDS = {
         for await (const _ of console)
             return /n(o)?/.test(_.trim().toLowerCase()) ? this.exit(1) : 1;
     },
+    async read() {
+        for await (const _ of console)
+            return _;
+    },
     async log() { }
 };
 
@@ -133,6 +137,19 @@ function parse_cmd(line) {
     return [cmd, args];
 }
 
+async function cmd(command, args) {
+    log_CMD(command, args);
+    try {
+        const res = await COMMANDS[command](args);
+        log_OK();
+        return res;
+    }
+    catch (err) {
+        log_ERR();
+        DEBUG && console.log(err);
+    }
+}
+
 await parse(file, async (line) => {
     if (!line || line.startsWith('#'))
         return;
@@ -142,25 +159,14 @@ await parse(file, async (line) => {
     if (line.startsWith('$')) {
         const [name, _] = parse_cmd(line);
         const [command, args] = parse_cmd(_);
-        try {
-            ARGS[name] = command in COMMANDS
-                ? await COMMANDS[command](args) : _;
-        }
-        catch { }
+        ARGS[name] = command in COMMANDS
+            ? await cmd(command, args)
+            : _;
         return;
     }
 
     const [command, args] = parse_cmd(line);
-    console.write(esc(command, 38, 5, 244, 1), ' ', args, ' ');
-
-    try {
-        await COMMANDS[command](args);
-        console.write(esc('OK', 38, 5, 155, 1), '\n');
-    }
-    catch (err) {
-        console.write(esc('ERR', 38, 5, 203, 1), '\n');
-        DEBUG && console.log(err);
-    }
+    await cmd(command, args);
 });
 
 process.exit(0);
@@ -187,6 +193,18 @@ async function parse(str, f) {
         LF &&= false;
     }
     await f(curr.trim());
+}
+
+function log_CMD(command, args) {
+    console.write(esc(command, 38, 5, 244, 1), ' ', args, ' ');
+}
+
+function log_OK() {
+    console.write(esc('OK', 38, 5, 155, 1), '\n');
+}
+
+function log_ERR() {
+    console.write(esc('ERR', 38, 5, 203, 1), '\n');
 }
 
 function esc(text, ...codes) {
