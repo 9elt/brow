@@ -34,7 +34,9 @@ catch {
 }
 
 const ARGS = Bun.argv.slice(2)
-    .reduce((c, arg, i) => (Object.assign(c, { ['$' + i]: arg })), {});
+    .reduce((c, arg, i) => (Object.assign(c, { ['$' + i]: arg })), {
+        '$@': Bun.argv.slice(3).join(' '),
+    });
 
 /** @type {Page} */
 let page = 0;
@@ -78,6 +80,11 @@ const COMMANDS = {
             return false;
         }
     },
+    async has(selector) {
+        return await page.evaluate((selector) => {
+            return document.querySelector(selector) !== null;
+        }, selector);
+    },
     async scroll(selector) {
         await page.evaluate((selector) => {
             const el = document.querySelector(selector);
@@ -89,11 +96,11 @@ const COMMANDS = {
         ms && await Bun.sleep(ms)
     },
     async press(key) {
-        await page.keyboard.press(key);
+        await page.keyboard.press(key.trim());
     },
     async type(text) {
         if (await this.wait('*:focus'))
-            await page.type('*:focus', text);
+            await page.type('*:focus', text.trim());
     },
     async browser(js) {
         return await page.evaluate((r) => eval(r), js);
@@ -120,7 +127,17 @@ const COMMANDS = {
         for await (const _ of console)
             return _;
     },
-    async log() { }
+    async exit(status) {
+        console.log();
+        process.exit(parseInt(status) || 0);
+    },
+    async if(bool) {
+        EXEC_NEXT_CMD = !/^(|false|null|undefined)$/.test(bool.trim());
+    },
+    async ifnot(bool) {
+        EXEC_NEXT_CMD = /^(|false|null|undefined)$/.test(bool.trim());
+    },
+    async log() { },
 };
 
 function parse_cmd(line) {
@@ -128,12 +145,15 @@ function parse_cmd(line) {
     let i = 0;
     let cmd = '';
     let args = '';
+    while ((char = line.charAt(i)) && char === ' ')
+        i++;
     while ((char = line.charAt(i++)) && char !== ' ')
         cmd += char;
     while ((char = line.charAt(i++)))
         args += char;
     for (const key in ARGS)
         args = args.replace(key, ARGS[key]);
+    args = args.replace(/(?<!\\)(\$\S+)/g, '');
     return [cmd, args];
 }
 
@@ -150,9 +170,14 @@ async function cmd(command, args) {
     }
 }
 
+let EXEC_NEXT_CMD = true;
+
 await parse(file, async (line) => {
     if (!line || line.startsWith('#'))
         return;
+
+    if (!EXEC_NEXT_CMD)
+        return EXEC_NEXT_CMD = true;
 
     await COMMANDS.sleep(150);
 
@@ -175,6 +200,8 @@ async function parse(str, f) {
     let LF = true;
     let curr = '';
     for (const char of str) {
+        if (char === ' ' && LF)
+            continue;
         if (char === '\r')
             continue;
         if (char === '\n') {
@@ -196,7 +223,7 @@ async function parse(str, f) {
 }
 
 function log_CMD(command, args) {
-    console.write(esc(command, 38, 5, 244, 1), ' ', args, ' ');
+    console.write(esc(command, 38, 5, 244, 1), ' ', args.trim(), ' ');
 }
 
 function log_OK() {

@@ -1,7 +1,7 @@
 # syntax
 
-# \n\n separates expressions
-(even comments)
+# \n\n separates expressions,
+even comments
 
 # execute a command
 <command> <args>
@@ -13,22 +13,28 @@
 <$variable_name> <command> <args>
 
 
+goto        https://youtube.com
 
-goto https://youtube.com
+click       input
 
-click input
+$search     Elder Scrolls | sigma knight meme 4k
 
-type $1
 
-press Enter
+if          $@
 
-$video_selector .ytd-item-section-renderer a#video-title
+$search     $@
 
-wait $video_selector
 
-$search_results browser
-    document.querySelectorAll('$video_selector').length
+type        $search
 
-log found $search_results search results
+press       Enter
 
-click $video_selector
+$video      .ytd-item-section-renderer a#video-title
+
+wait        $video
+
+$results    browser     document.querySelectorAll('$video').length
+
+log         found $results search results
+
+click       $video
