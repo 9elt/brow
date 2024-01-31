@@ -17,7 +17,7 @@ $ chromium --remote-debugging-port=21222
 
 then
 ```
-$ bun ./index.js ./example
+$ bun index.js example
 ```
 
 this [run](./run) script should work on linux
