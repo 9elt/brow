@@ -132,10 +132,7 @@ const COMMANDS = {
         process.exit(parseInt(status) || 0);
     },
     async if(bool) {
-        EXEC_NEXT_CMD = !/^(|false|null|undefined)$/.test(bool.trim());
-    },
-    async ifnot(bool) {
-        EXEC_NEXT_CMD = /^(|false|null|undefined)$/.test(bool.trim());
+        EXEC_NEXT_CMD = !/^(|0|false|null|undefined)$/.test(bool.trim());
     },
     async log() { },
 };
