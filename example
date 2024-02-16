@@ -17,12 +17,16 @@ goto        https://youtube.com
 
 click       input
 
-$search     Elder Scrolls | sigma knight meme 4k
-
 
 if          $@
 
 $search     $@
+
+else
+
+$search     Elder Scrolls | sigma knight meme 4k
+
+endif
 
 
 type        $search

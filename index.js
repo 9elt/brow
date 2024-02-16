@@ -134,6 +134,12 @@ const COMMANDS = {
     async if(bool) {
         EXEC_NEXT_CMD = !/^(|0|false|null|undefined)$/.test(bool.trim());
     },
+    async else() {
+        EXEC_NEXT_CMD = !EXEC_NEXT_CMD;
+    },
+    async endif() {
+        EXEC_NEXT_CMD = true;
+    },
     async log() { },
 };
 
@@ -173,22 +179,22 @@ await parse(file, async (line) => {
     if (!line || line.startsWith('#'))
         return;
 
-    if (!EXEC_NEXT_CMD)
-        return EXEC_NEXT_CMD = true;
+    const [_1, _args] = parse_cmd(line);
+
+    if (!EXEC_NEXT_CMD && !/^(else|endif)$/.test(_1))
+        return;
 
     await COMMANDS.sleep(150);
 
-    if (line.startsWith('$')) {
-        const [name, _] = parse_cmd(line);
-        const [command, args] = parse_cmd(_);
-        ARGS[name] = command in COMMANDS
+    if (line.charAt(0) === '$') {
+        const [command, args] = parse_cmd(_args);
+        ARGS[_1] = command in COMMANDS
             ? await cmd(command, args)
-            : _;
+            : _args;
         return;
     }
 
-    const [command, args] = parse_cmd(line);
-    await cmd(command, args);
+    await cmd(_1, _args);
 });
 
 process.exit(0);
