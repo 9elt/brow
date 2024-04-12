@@ -1,0 +1,37 @@
+#!/bin/bash
+
+BROW_DIR=~/projects/brow/
+
+ping_21222() {
+	ss -tuna | grep 21222
+}
+
+ping_chromium() {
+	ss -lpn | grep chromium
+}
+
+yesNo() {
+	read -rp "$1 [y/N] " r && [[ $r == [yY] || $r == [yY][eE][sS] ]] || exit 1
+}
+
+if [ ! "$(ping_21222)" ]; then
+	if [[ "$(ping_chromium)" ]]; then
+		yesNo 'close chromium?'
+		pkill chromium
+	fi
+
+	chromium --remote-debugging-port=21222 &>/dev/null &
+
+	ping = 0
+	while [ ! "$(ping_21222)" ] && [[ ping -lt 20 ]]; do
+		sleep .5
+		((ping++))
+	done
+
+	if [ ! "$(ping_21222)" ]; then
+		echo 'could not start chromium'
+		exit 1
+	fi
+fi
+
+bun $BROW_DIR/index.js "$@"
