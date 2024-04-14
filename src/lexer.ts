@@ -80,4 +80,3 @@ export function lexer(str: string) {
 
     return tokens;
 }
-

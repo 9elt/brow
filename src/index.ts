@@ -1,6 +1,6 @@
 import { lexer } from './lexer';
 import { evaluate } from './eval';
-import { tbuild } from './tbuilder';
+import { parser } from './parser';
 
 let path: string;
 try {
@@ -20,4 +20,4 @@ catch {
     process.exit(1);
 }
 
-evaluate(tbuild(lexer(file)));
+evaluate(parser(lexer(file)));

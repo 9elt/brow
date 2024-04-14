@@ -2,7 +2,7 @@ import { AND, ARGS, ASSIGN, CLOSE_ARGS, COMMAND, COMMENT, DATA, EOL, NEXT, OPEN_
 import { Tokens } from "./tokens";
 import { Meta } from "./types";
 
-export function tbuild(tokens: Tokens) {
+export function parser(tokens: Tokens) {
     let meta: Meta[] = [];
 
     for (let i = 0; i < tokens.length; i++) {
@@ -34,7 +34,7 @@ export function tbuild(tokens: Tokens) {
             meta.push({
                 type: COMMAND,
                 name: name.trim(),
-                data: tbuild(args),
+                data: parser(args),
             });
         }
         else if (tokens[i] === AND) {
@@ -66,7 +66,7 @@ export function tbuild(tokens: Tokens) {
 
             meta.push({
                 type: ASSIGN,
-                data: tbuild(value),
+                data: parser(value),
             });
 
             meta.push({
@@ -82,7 +82,7 @@ export function tbuild(tokens: Tokens) {
 
             meta.push({
                 type: ARGS,
-                data: tbuild(args),
+                data: parser(args),
             });
         }
         else if (tokens[i] === COMMENT) {
