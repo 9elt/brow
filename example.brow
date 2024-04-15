@@ -1,7 +1,10 @@
+#!/bin/brow
+
 #  $ variable_name
 #  @ command_name
 #
 #  {argument}
+#  (group)
 #
 #  # comment
 #

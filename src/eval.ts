@@ -1,5 +1,5 @@
 import { commands } from "./commands";
-import { AND, ARGS, ASSIGN, COMMAND, COMMENT, DATA, EOL, NEXT, OR, VARIABLE, VARS } from "./const";
+import { AND, ARGS, ASSIGN, COMMAND, COMMENT, DATA, DEBUG, EOL, GROUP, NEXT, OR, VARIABLE, VARS } from "./const";
 import { Meta } from "./types";
 
 export async function evaluate(meta: Meta[]) {
@@ -9,7 +9,9 @@ export async function evaluate(meta: Meta[]) {
     for (let i = 0; i < meta.length; i++) {
         const type = meta[i].type;
 
-        console.log("\x1b[38;5;240m>>>>", JSON.stringify(meta[i], null, 2), "\x1b[0m");
+        if (DEBUG) {
+            console.log("\x1b[38;5;240m>>>>", JSON.stringify(meta[i], null, 2), "\x1b[0m");
+        }
 
         const data = meta[i].data;
         const name = meta[i].name;
@@ -18,8 +20,16 @@ export async function evaluate(meta: Meta[]) {
             continue;
         }
         if (type === EOL) {
-            prev = null;
-            result = null;
+            if (i + 1 < meta.length) {
+                prev = null;
+                result = null;
+                continue;
+            }
+            return result;
+        }
+        if (type === GROUP) {
+            result = await evaluate(data as Meta[]);
+            prev = meta[i];
             continue;
         }
         if (type === COMMAND) {
@@ -29,7 +39,16 @@ export async function evaluate(meta: Meta[]) {
             if (!(name in commands)) {
                 throw new Error("Command not found: " + name);
             }
-            result = await commands[name](evaluateArgs(data as Meta[]));
+
+            try {
+                result = await commands[name](evaluateArgs(data as Meta[]));
+            } catch (e) {
+                if (DEBUG) {
+                    console.error(e);
+                }
+                result = null;
+            }
+
             prev = meta[i];
             continue;
         }

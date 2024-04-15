@@ -1,4 +1,4 @@
-import { AND, ASSIGN, CLOSE_ARGS, COMMAND, COMMENT, EOL, ESCAPE, NEXT, OPEN_ARGS, OR, VARIABLE, WORD } from "./const";
+import { AND, ASSIGN, ARGS_CLOSE, GROUP_CLOSE, COMMAND, COMMENT, EOL, ESCAPE, NEXT, ARGS_OPEN, GROUP_OPEN, OR, VARIABLE, WORD } from "./const";
 import { Tokens } from "./tokens";
 
 export function lexer(str: string) {
@@ -16,20 +16,20 @@ export function lexer(str: string) {
                 continue;
             }
 
-            if (char === OPEN_ARGS) {
+            if (char === ARGS_OPEN) {
                 if (!args++) {
                     tokens.push_back(char);
                     tokens.push_back("");
+                    continue;
                 }
-                continue;
             }
 
-            if (char === CLOSE_ARGS) {
+            if (char === ARGS_CLOSE) {
                 if (!--args) {
                     tokens.push_back(char);
                     tokens.push_back("");
+                    continue;
                 }
-                continue;
             }
 
             if (
@@ -62,6 +62,8 @@ export function lexer(str: string) {
                 char === OR ||
                 char === NEXT ||
                 char === ASSIGN ||
+                char === GROUP_OPEN ||
+                char === GROUP_CLOSE ||
                 char === EOL
             )) {
                 tokens.push_back(char);

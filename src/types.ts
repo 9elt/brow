@@ -1,4 +1,4 @@
-import { AND, ARGS, ASSIGN, COMMAND, COMMENT, DATA, EOL, NEXT, OR, VARIABLE } from './const';
+import { AND, ARGS, ASSIGN, COMMAND, COMMENT, DATA, EOL, GROUP, NEXT, OR, VARIABLE } from './const';
 
 export type TokenComment = typeof COMMENT;
 export type TokenCommand = typeof COMMAND;
@@ -10,6 +10,7 @@ export type TokenAssign = typeof ASSIGN;
 export type TokenLineEnd = typeof EOL;
 export type TokenData = typeof DATA;
 export type TokenArgs = typeof ARGS;
+export type TokenGroup = typeof GROUP;
 
 export type TokenType =
     TokenComment |
@@ -21,7 +22,8 @@ export type TokenType =
     TokenAssign |
     TokenLineEnd |
     TokenData |
-    TokenArgs;
+    TokenArgs |
+    TokenGroup;
 
 export type Meta = {
     type: TokenType;

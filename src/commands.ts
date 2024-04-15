@@ -4,33 +4,47 @@ export const commands: {
     [key: string]: (...args: string[]) => Promise<any>
 } = {
     async goto(url) {
-        await page.goto(url);
-        return true;
+        try {
+            await page.goto(url);
+            return true;
+        } catch {
+            return false;
+        }
     },
     async click(selector) {
-        if (await this.wait(selector))
+        if (await this.wait(selector)) {
             await page.click(selector);
-        return true;
+            return true;
+        }
+        return false;
     },
     async focus(selector) {
-        if (await this.wait(selector))
+        if (await this.wait(selector)) {
             await page.focus(selector);
-        return true;
+            return true;
+        }
+        return false;
     },
     async hover(selector) {
-        if (await this.wait(selector))
+        if (await this.wait(selector)) {
             await page.hover(selector);
-        return true;
+            return true;
+        }
+        return false;
     },
     async select(selector) {
-        if (await this.wait(selector))
+        if (await this.wait(selector)) {
             await page.select(selector);
-        return true;
+            return true;
+        }
+        return false;
     },
     async tap(selector) {
-        if (await this.wait(selector))
+        if (await this.wait(selector)) {
             await page.tap(selector);
-        return true;
+            return true;
+        }
+        return false;
     },
     async wait(selector) {
         try {
@@ -66,6 +80,16 @@ export const commands: {
             await page.type('*:focus', text.trim());
         return true;
     },
+    async slowtype(text) {
+        if (await this.wait('*:focus')) {
+            text = text.trim();
+            for (const char of text) {
+                await page.type('*:focus', char);
+                await Bun.sleep(50);
+            }
+        }
+        return true;
+    },
     async browser(js) {
         return await page.evaluate((r) => eval(r), js);
     },
@@ -91,6 +115,11 @@ export const commands: {
         console.write(question + ': ');
         for await (const _ of console)
             return _;
+    },
+    async pause(message) {
+        console.write(message);
+        for await (const _ of console)
+            return true;
     },
     async exit(status) {
         process.exit(parseInt(status) || 0);

@@ -1,4 +1,4 @@
-import { AND, ARGS, ASSIGN, CLOSE_ARGS, COMMAND, COMMENT, DATA, EOL, NEXT, OPEN_ARGS, OR, VARIABLE } from "./const";
+import { AND, ARGS, ASSIGN, ARGS_CLOSE, COMMAND, COMMENT, DATA, EOL, NEXT, ARGS_OPEN, OR, VARIABLE, GROUP_OPEN, GROUP_CLOSE, GROUP } from "./const";
 import { Tokens } from "./tokens";
 import { Meta } from "./types";
 
@@ -17,6 +17,18 @@ export function parser(tokens: Tokens) {
                 name: name.trim(),
             });
         }
+        else if (tokens[i] === GROUP_OPEN) {
+            let group = new Tokens();
+
+            while (tokens[++i] !== GROUP_CLOSE && i < tokens.length) {
+                group.push_back(tokens[i]);
+            }
+
+            meta.push({
+                type: GROUP,
+                data: parser(group),
+            });
+        }
         else if (tokens[i] === COMMAND) {
             let name = tokens[++i];
 
@@ -25,7 +37,7 @@ export function parser(tokens: Tokens) {
 
             let args = new Tokens();
 
-            while (tokens[++i] !== CLOSE_ARGS && i < tokens.length) {
+            while (tokens[++i] !== ARGS_CLOSE && i < tokens.length) {
                 args.push_back(tokens[i]);
             };
 
@@ -73,10 +85,10 @@ export function parser(tokens: Tokens) {
                 type: EOL,
             })
         }
-        else if (tokens[i] === OPEN_ARGS) {
+        else if (tokens[i] === ARGS_OPEN) {
             let args = new Tokens();
 
-            while (tokens[++i] !== CLOSE_ARGS && i < tokens.length) {
+            while (tokens[++i] !== ARGS_CLOSE && i < tokens.length) {
                 args.push_back(tokens[i]);
             }
 
