@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BROW_DIR=~/projects/brow/
+BROW_DIR=~/.brow
 
 ping_21222() {
 	ss -tuna | grep 21222
@@ -34,4 +34,4 @@ if [ ! "$(ping_21222)" ]; then
 	fi
 fi
 
-bun $BROW_DIR/index.js "$@"
+bun $BROW_DIR/src/index.ts "$@"
